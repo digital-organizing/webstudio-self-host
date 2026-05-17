@@ -49,6 +49,12 @@ openssl rand -hex 64
 openssl rand -hex 32
 ```
 
+Also set `DEPLOYMENT_URL` in your `.env` to your builder's public URL — required in production regardless of login mode:
+
+```env
+DEPLOYMENT_URL=https://webstudio.your-domain.com
+```
+
 Then start:
 
 ```bash
@@ -177,7 +183,7 @@ In your Coolify project: **New resource → Docker Compose → From a Git reposi
 
 Coolify auto-generates these variables — leave them as-is:
 - `SERVICE_PASSWORD_DB`, `SERVICE_PASSWORD_AUTH`, `SERVICE_BASE64_64_PGRST`, `SERVICE_BASE64_64_TRPC`
-- `SERVICE_FQDN_APP_3000`, `SERVICE_FQDN_MINIO_9000`, `SERVICE_FQDN_NGINX_80`
+- `SERVICE_FQDN_APP_3000`, `SERVICE_FQDN_MINIO_9000`, `SERVICE_URL_APP`
 
 Set these manually in the Coolify environment:
 
@@ -197,6 +203,7 @@ DEV_LOGIN_EMAIL=admin@example.com
 # Option B: GitHub OAuth
 # GH_CLIENT_ID=...
 # GH_CLIENT_SECRET=...
+# Note: DEPLOYMENT_URL is automatically set from SERVICE_URL_APP by the compose file
 ```
 
 ### 5 — Deploy
@@ -219,6 +226,56 @@ DB migrations run automatically on every restart.
 
 ---
 
+## Authentication
+
+Three login modes are available. Choose one and set the corresponding variables.
+
+### Option A — Simple password login (default)
+
+No external provider needed. Set in `.env` (plain Compose) or Coolify environment:
+
+```env
+DEV_LOGIN=true
+DEV_LOGIN_EMAIL=admin@example.com
+```
+
+The password is the value of `AUTH_SECRET` (visible in Coolify under the service's environment variables).
+
+### Option B — GitHub OAuth
+
+1. Go to **github.com → Settings → Developer Settings → OAuth Apps → New OAuth App**
+2. Fill in:
+   - **Homepage URL**: `https://webstudio.your-domain.com`
+   - **Authorization callback URL**: `https://webstudio.your-domain.com/auth/github/callback`
+3. Copy the **Client ID** and generate a **Client Secret**
+4. Remove `DEV_LOGIN` from your env, then add:
+
+```env
+GH_CLIENT_ID=your-client-id
+GH_CLIENT_SECRET=your-client-secret
+DEPLOYMENT_URL=https://webstudio.your-domain.com
+```
+
+> With Coolify: `DEPLOYMENT_URL` is automatically set from `SERVICE_URL_APP` by the compose file — no need to add it manually.
+
+### Option C — Google OAuth
+
+1. Go to **console.cloud.google.com → APIs & Services → Credentials → Create OAuth 2.0 Client ID**
+2. Application type: **Web application**
+3. Under **Authorized redirect URIs**, add: `https://webstudio.your-domain.com/auth/google/callback`
+4. Copy the **Client ID** and **Client Secret**
+5. Remove `DEV_LOGIN` from your env, then add:
+
+```env
+GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret
+DEPLOYMENT_URL=https://webstudio.your-domain.com
+```
+
+> With Coolify: `DEPLOYMENT_URL` is automatically set from `SERVICE_URL_APP` by the compose file — no need to add it manually.
+
+---
+
 ## Environment variables
 
 | Variable | Required | Default | Description |
@@ -227,10 +284,14 @@ DB migrations run automatically on every restart.
 | `PGRST_JWT_SECRET` | ✅ | — | Secret for PostgREST JWT auth (≥ 64 chars) |
 | `AUTH_SECRET` | ✅ | — | Session cookie signing secret |
 | `APP_FQDN` | ✅ (Coolify) | — | Builder public domain (e.g. `webstudio.your-domain.com`) |
-| `DEV_LOGIN` | — | — | `true` = password login (password = `AUTH_SECRET`) |
-| `DEV_LOGIN_EMAIL` | — | `admin@example.com` | Email for dev login |
+| `DEV_LOGIN` | — | — | `true` = password login using `AUTH_SECRET` as the password. |
+| `DEV_LOGIN_EMAIL` | — | `admin@example.com` | Email used for dev login |
 | `GH_CLIENT_ID` / `GH_CLIENT_SECRET` | — | — | GitHub OAuth |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | — | — | Google OAuth |
+| `DEPLOYMENT_URL` | ✅ | — | Builder's public URL with protocol (e.g. `https://webstudio.your-domain.com`). Required in production for all login modes. Auto-set from `SERVICE_URL_APP` in Coolify. |
+| `DEPLOYMENT_ENVIRONMENT` | — | — | Set to `production` automatically by both compose files. |
+| `AUTH_WS_CLIENT_ID` | ✅ (prod) | — | OAuth server credential for the webstudio CLI. Any non-empty value. Auto-set in Coolify. |
+| `AUTH_WS_CLIENT_SECRET` | ✅ (prod) | — | OAuth server secret for the webstudio CLI. Any strong random value. Auto-set in Coolify. |
 | `PUBLISHER_HOST` | — | `wstd.work` | Domain suffix for published project URLs |
 | `TRPC_SERVER_API_TOKEN` | — | — | Service token shared between builder and publisher |
 | `SELF_HOSTED_PUBLISHER_URL` | — | `http://publisher:4000` | Internal publisher URL |
