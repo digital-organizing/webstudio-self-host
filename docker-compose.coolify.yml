@@ -173,12 +173,12 @@ services:
     # before deploying. Replace "webstudio.example.com" with your actual app domain.
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ws-canvas.rule=HostRegexp(`^.+[.]webstudio[.]example[.]com`)"
+      - "traefik.http.routers.ws-canvas.rule=HostRegexp(`^.+[.]ws-builder[.]d-o[.]li`)"
       - "traefik.http.routers.ws-canvas.entrypoints=https"
       - "traefik.http.routers.ws-canvas.tls=true"
       - "traefik.http.routers.ws-canvas.tls.certresolver=cloudflare"
-      - "traefik.http.routers.ws-canvas.tls.domains[0].main=*.webstudio.example.com"
-      - "traefik.http.routers.ws-canvas.tls.domains[0].sans=webstudio.example.com"
+      - "traefik.http.routers.ws-canvas.tls.domains[0].main=*.ws-builder.d-o.li"
+      - "traefik.http.routers.ws-canvas.tls.domains[0].sans=ws-builder.d-o.li"
       - "traefik.http.routers.ws-canvas.service=ws-canvas-svc"
       - "traefik.http.routers.ws-canvas.middlewares=gzip"
       - "traefik.http.services.ws-canvas-svc.loadbalancer.server.port=3000"
@@ -223,12 +223,12 @@ services:
       retries: 3
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ws-publisher.rule=HostRegexp(`^.+[.]wstdwork[.]example[.]com`)"
+      - "traefik.http.routers.ws-publisher.rule=HostRegexp(`^.+[.]ws-sites[.]d-o[.]li`)"
       - "traefik.http.routers.ws-publisher.entrypoints=https"
       - "traefik.http.routers.ws-publisher.tls=true"
       - "traefik.http.routers.ws-publisher.tls.certresolver=cloudflare"
-      - "traefik.http.routers.ws-publisher.tls.domains[0].main=*.wstdwork.example.com"
-      - "traefik.http.routers.ws-publisher.tls.domains[0].sans=wstdwork.example.com"
+      - "traefik.http.routers.ws-publisher.tls.domains[0].main=*.ws-sites.d-o.li"
+      - "traefik.http.routers.ws-publisher.tls.domains[0].sans=ws-sites.d-o.li"
       - "traefik.http.routers.ws-publisher.service=ws-publisher-svc"
       - "traefik.http.routers.ws-publisher.middlewares=gzip"
       - "traefik.http.services.ws-publisher-svc.loadbalancer.server.port=4001"
