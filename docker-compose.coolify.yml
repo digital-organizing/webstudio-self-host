@@ -173,6 +173,17 @@ services:
     # before deploying. Replace "webstudio.example.com" with your actual app domain.
     labels:
       - "traefik.enable=true"
+
+      # Main Webstudio builder domain
+      - "traefik.http.routers.ws-builder.rule=Host(`ws-builder.d-o.li`)"
+      - "traefik.http.routers.ws-builder.entrypoints=https"
+      - "traefik.http.routers.ws-builder.tls=true"
+      - "traefik.http.routers.ws-builder.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.ws-builder.service=ws-builder-svc"
+      - "traefik.http.routers.ws-builder.middlewares=gzip"
+      - "traefik.http.services.ws-builder-svc.loadbalancer.server.port=3000"
+
+      # Canvas / preview wildcard subdomains
       - "traefik.http.routers.ws-canvas.rule=HostRegexp(`^.+[.]ws-builder[.]d-o[.]li`)"
       - "traefik.http.routers.ws-canvas.entrypoints=https"
       - "traefik.http.routers.ws-canvas.tls=true"
@@ -223,6 +234,8 @@ services:
       retries: 3
     labels:
       - "traefik.enable=true"
+
+      # Published project wildcard subdomains
       - "traefik.http.routers.ws-publisher.rule=HostRegexp(`^.+[.]ws-sites[.]d-o[.]li`)"
       - "traefik.http.routers.ws-publisher.entrypoints=https"
       - "traefik.http.routers.ws-publisher.tls=true"
